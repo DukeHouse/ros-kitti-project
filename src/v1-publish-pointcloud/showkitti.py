@@ -2,7 +2,7 @@
 Author: haodu
 Date: 1970-01-01 08:00:00
 LastEditors: haodu
-LastEditTime: 2021-02-10 12:50:59
+LastEditTime: 2021-02-11 15:13:17
 Description: Do not edit
 Sample output: Do not edit
 '''
@@ -29,13 +29,13 @@ if  __name__ == "__main__":
 
     while not rospy.is_shutdown():
         img = cv2.imread(os.path.join(DATA_PATH, 'image_02/data/%010d.png'%frame))
-	cam_pub.publish(bridge.cv2_to_imgmsg(img,"bgr8"))
+        cam_pub.publish(bridge.cv2_to_imgmsg(img,"bgr8"))
 
-	point_cloud = np.fromfile(os.path.join(DATA_PATH, 'velodyne_points/data/%010d.bin'%frame),dtype=np.float32).reshape(-1,4)
-	header = Header()
-	header.stamp = rospy.Time.now()
-	header.frame_id = 'map'
-	pcl_pub.publish(pcl2.create_cloud_xyz32(header, point_cloud[:,:3]))
+        point_cloud = np.fromfile(os.path.join(DATA_PATH, 'velodyne_points/data/%010d.bin'%frame),dtype=np.float32).reshape(-1,4)
+        header = Header()
+        header.stamp = rospy.Time.now()
+        header.frame_id = 'map'
+        pcl_pub.publish(pcl2.create_cloud_xyz32(header, point_cloud[:,:3]))
         rospy.loginfo("camera image published")
         rate.sleep()
         frame += 1
