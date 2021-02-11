@@ -339,9 +339,9 @@ def publish_dist(dist_pub,minPQDs):
         text_marker.scale.y = 1
         text_marker.scale.z = 1
         
-        text_marker.color.r = 1.0
-        text_marker.color.g = 0.0
-        text_marker.color.b = 1.0
+        text_marker.color.r = 0.0
+        text_marker.color.g = 1.0
+        text_marker.color.b = 0.0
         text_marker.color.a = 0.5
         marker_array.markers.append(text_marker)
 

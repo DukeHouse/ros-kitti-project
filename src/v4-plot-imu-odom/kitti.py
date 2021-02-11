@@ -2,9 +2,8 @@
 Author: haodu
 Date: 1970-01-01 08:00:00
 LastEditors: haodu
-LastEditTime: 2021-02-10 23:07:07
-Description: Do not edit
-Sample output: Do not edit
+LastEditTime: 2021-02-11 10:01:48
+Description: main demo Sample , 1. roscore 2. python kitty.py 3. python mesh_test.py 4. rosrun rviz rviz
 '''
 #!/usr/bin/env python
 from data_utils import *
