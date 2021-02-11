@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+#coding:utf-8
 import rospy 
 from std_msgs.msg import Header
 from visualization_msgs.msg import Marker, MarkerArray
@@ -20,6 +21,7 @@ LINES = [[0, 1], [1, 2], [2, 3], [3, 0]] # lower face
 LINES+= [[4, 5], [5, 6], [6, 7], [7, 4]] # upper face
 LINES+= [[4, 0], [5, 1], [6, 2], [7, 3]] # connect lower face and upper face
 LINES+= [[4, 1], [5, 0]] # front face and draw x
+ego_car = np.array([[2.15, 0.9, -1.73], [2.15, -0.9, -1.73], [-1.95, -0.9, -1.73],[-1.95,0.9,-1.73], [2.15,0.9,-0.23], [2.15,-0.9,-0.23],[-1.95,-0.9,-0.23],[-1.95,0.9,-0.23]])
 
 def publish_camera(cam_pub, bridge, image, borders_2d_cam2s=None, object_types=None, log=False):
     """
@@ -194,26 +196,154 @@ def publish_3dbox(box3d_pub, corners_3d_velos, track_ids, types=None, publish_id
 def publish_imu_odom(imu_odom_pub, tracker, centers):
     marker_array = MarkerArray()
     
-    for track_id in centers:
+    # for track_id in centers:
 
+    #     marker = Marker()
+    #     marker.header.frame_id = FRAME_ID
+    #     marker.header.stamp = rospy.Time.now()
+
+    #     marker.action = Marker.ADD
+    #     marker.lifetime = rospy.Duration(LIFETIME)
+    #     marker.type = Marker.LINE_STRIP
+    #     marker.id = track_id
+
+    #     marker.color.r = 1.0
+    #     marker.color.g = 1.0
+    #     marker.color.b = 0.0
+    #     marker.color.a = 1.0
+    #     marker.scale.x = 0.2
+
+    #     marker.points = []
+    #     for p in tracker[track_id].locations:
+    #         marker.points.append(Point(p[0], p[1], 0))
+
+    #     marker_array.markers.append(marker)
+    # imu_odom_pub.publish(marker_array)
+
+def publish_car_model(model_pub):
+	marker = Marker()
+	marker.header.frame_id = "map"
+	marker.header.stamp = rospy.Time.now()
+
+	marker.id = 0
+	marker.lifetime = rospy.Duration()
+	marker.type = Marker.MESH_RESOURCE
+	marker.mesh_resource = "package://kitti/bmw_x5/BMW X5 4.dae"
+	# marker.mesh_use_embedded_materials = True
+
+	marker.pose.position.x = 0.0
+	marker.pose.position.y = 0.0
+	marker.pose.position.z = -1.73
+
+	q = tf.transformations.quaternion_from_euler(np.pi/2, 0, np.pi);
+	marker.pose.orientation.x = q[0]
+	marker.pose.orientation.y = q[1]
+	marker.pose.orientation.z = q[2]
+	marker.pose.orientation.w = q[3]
+
+	marker.color.r = 1.0
+	marker.color.g = 1.0
+	marker.color.b = 1.0
+	marker.color.a = 0.8
+
+	marker.scale.x = 1.0
+	marker.scale.y = 1.0
+	marker.scale.z = 1.0
+
+	model_pub.publish(marker)
+	rospy.loginfo("marker published")
+
+# 计算两个3d框的最短距离
+def distance_point_to_segment(P,A,B):
+  """
+  calculates the min distance of point P to a segment AB.
+  return min distance and point q
+  """
+
+  AP = P-A
+  BP = P-B
+  AB = B-A
+  # 锐角，投影点在线段上
+  if np.dot(AB,AP)>=0 and np.dot(-AB,BP)>=0:
+    return np.abs(np.cross(AP,AB))/np.linalg.norm(AB), np.dot(AP,AB)/np.dot(AB,AB)*AB+A
+  # 否则线段外
+  d_PA = np.linalg.norm(AP)
+  d_PB = np.linalg.norm(BP)
+  if d_PA < d_PB:
+    return d_PA, A 
+  return d_PB, B
+
+def min_distance_cuboids(cub1,cub2):
+  """
+  compute min dist between two non-overlapping cuboids of shape (8,4)
+  """
+
+  minD = 1e5
+  for i in range(4):
+    for j in range(4):
+      d, Q = distance_point_to_segment(cub1[i,:2], cub2[j,:2], cub2[j+1,:2])
+      if d < minD:
+        minD = d
+        minP = ego_car[i,:2]
+        minQ = Q
+  for i in range(4):
+    for j in range(4):
+      d, Q = distance_point_to_segment(cub1[i,:2], cub2[j,:2], cub2[j+1,:2])
+      if d < minD:
+        minD = d
+        minP = corners_3d_velo[i,:2]
+        minQ = Q
+  return minP, minQ, minD
+
+def publish_dist(dist_pub,minPQDs):
+    marker_array = MarkerArray()
+
+    for i , (minP , minQ , minD) in enumerate(minPQDs):
         marker = Marker()
         marker.header.frame_id = FRAME_ID
         marker.header.stamp = rospy.Time.now()
 
         marker.action = Marker.ADD
-        marker.lifetime = rospy.Duration(LIFETIME)
+        marker.lifetime = rospy.Duration(LIFETIME) 
         marker.type = Marker.LINE_STRIP
-        marker.id = track_id
+        marker.id = i
 
         marker.color.r = 1.0
-        marker.color.g = 1.0
-        marker.color.b = 0.0
-        marker.color.a = 1.0
-        marker.scale.x = 0.2
+        marker.color.g = 0.0
+        marker.color.b = 1.0
+        marker.color.a = 0.5
+        marker.scale.x = 0.5
 
         marker.points = []
-        for p in tracker[track_id].locations:
-            marker.points.append(Point(p[0], p[1], 0))
+        marker.points.append(Point(minP[0],minP[1],0))
+        marker.points.append(Point(minQ[0],minQ[1],0))
 
         marker_array.markers.append(marker)
-    imu_odom_pub.publish(marker_array)
+
+        text_marker = Marker()
+        text_marker.header.frame_id = FRAME_ID
+        text_marker.header.stamp = rospy.Time.now()
+        text_marker.id = i + 1000
+        text_marker.action = Marker.ADD
+        text_marker.lifetime = rospy.Duration(LIFETIME) 
+        text_marker.type = Marker.TEXT_VIEW_FACING
+
+        p = (minP + minQ) / 2.0
+        text_marker.pose.position.x = p[0]
+        text_marker.pose.position.y = p[1]
+        text_marker.pose.position.z = 0.0
+
+        text_marker.text = '%.2f'%minD
+
+        text_marker.scale.x = 1
+        text_marker.scale.y = 1
+        text_marker.scale.z = 1
+        
+        text_marker.color.r = 1.0
+        text_marker.color.g = 0.0
+        text_marker.color.b = 1.0
+        text_marker.color.a = 0.5
+        marker_array.markers.append(text_marker)
+
+    dist_pub.publish(marker_array)
+

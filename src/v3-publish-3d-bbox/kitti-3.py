@@ -4,7 +4,7 @@ from publish_utils import *
 from utils import *
 from kitti_utils import *
 
-DATA_PATH = '/root/kitti/RawData/2011_09_26/2011_09_26_drive_0005_sync/'
+DATA_PATH = '/media/psf/Home/Downloads/kitti/RawData/2011_09_26/2011_09_26_drive_0005_sync/'
 
 if  __name__ == "__main__":
     frame = 0
@@ -19,8 +19,8 @@ if  __name__ == "__main__":
     box3d_pub = rospy.Publisher('kitti_3dbox',MarkerArray, queue_size=10)
     rate = rospy.Rate(10)
 
-    df_tracking = read_tracking('/root/kitti/training/label_02/0000.txt')
-    calib = Calibration('/root/kitti/RawData/2011_09_26/',from_video=True)
+    df_tracking = read_tracking('/media/psf/Home/Downloads/kitti/training/label_02/0000.txt')
+    calib = Calibration('/media/psf/Home/Downloads/kitti/RawData/2011_09_26/',from_video=True)
     while not rospy.is_shutdown():
         # read data
         df_tracking_frame = df_tracking[df_tracking.frame==frame]

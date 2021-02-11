@@ -1,3 +1,11 @@
+'''
+Author: haodu
+Date: 1970-01-01 08:00:00
+LastEditors: haodu
+LastEditTime: 2021-02-10 12:50:59
+Description: Do not edit
+Sample output: Do not edit
+'''
 #!/usr/bin/env python
 import cv2
 import os
@@ -8,7 +16,7 @@ from sensor_msgs.msg import Image, PointCloud2
 import sensor_msgs.point_cloud2 as pcl2
 from cv_bridge import CvBridge
 
-DATA_PATH = '/root/kitti/RawData/2011_09_26/2011_09_26_drive_0005_sync/'
+DATA_PATH = '/media/psf/Home/Downloads/kitti/RawData/2011_09_26/2011_09_26_drive_0005_sync/'
 
 if  __name__ == "__main__":
     frame = 0

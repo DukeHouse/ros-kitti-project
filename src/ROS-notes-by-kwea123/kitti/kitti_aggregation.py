@@ -69,9 +69,9 @@ def compute_great_circle_distance(lat1, lon1, lat2, lon2):
     return 6371000.0 * np.arccos(delta_sigma)
 
 
-DATA_PATH = '/root/kitti/RawData/2011_09_26/2011_09_26_drive_0005_sync/'
+DATA_PATH = '/media/psf/Home/Downloads/kitti/RawData/2011_09_26/2011_09_26_drive_0005_sync/'
 
-with open('/root/kitti/RawData/2011_09_26/calib_velo_to_cam.txt', 'r') as f:
+with open('/media/psf/Home/Downloads/kitti/RawData/2011_09_26/calib_velo_to_cam.txt', 'r') as f:
     yml = yaml.load(f)
 
 R_velo_to_cam2 = np.array([float(i) for i in yml['R'].split(' ')]).reshape(3, 3)
@@ -214,7 +214,7 @@ if __name__ == '__main__':
     tracker_pub = rospy.Publisher('kitti_trajectories', MarkerArray, queue_size=10)
     rate = rospy.Rate(10)
 
-    df_tracking = read_tracking('/root/kitti/training/label_02/0000.txt')
+    df_tracking = read_tracking('/media/psf/Home/Downloads/kitti/training/label_02/0000.txt')
     sequence_length = 150
 
     localizer = Localizer(loc_pub)

@@ -1,3 +1,11 @@
+'''
+Author: haodu
+Date: 1970-01-01 08:00:00
+LastEditors: haodu
+LastEditTime: 2021-02-10 16:00:34
+Description: Do not edit
+Sample output: Do not edit
+'''
 #!/usr/bin/env python
 import rospy
 from visualization_msgs.msg import Marker
@@ -19,7 +27,7 @@ while not rospy.is_shutdown():
 	marker.action = Marker.ADD
 	marker.lifetime = rospy.Duration()
 	marker.type = Marker.MESH_RESOURCE
-	marker.mesh_resource = "package://kitti/bmw_x5/BMW X5 4.dae"
+	marker.mesh_resource = "file:///media/psf/Home/Downloads/ros-kitti-project/src/ROS-notes-by-kwea123/kitti/bmw_x5/BMW X5 4.dae"
 	# marker.mesh_use_embedded_materials = True
 
 	marker.pose.position.x = 0.0
@@ -37,9 +45,9 @@ while not rospy.is_shutdown():
 	marker.color.b = 1.0
 	marker.color.a = 0.8
 
-	marker.scale.x = 1.0
-	marker.scale.y = 1.0
-	marker.scale.z = 1.0
+	marker.scale.x = 0.8
+	marker.scale.y = 0.8
+	marker.scale.z = 0.8
 
 	pub.publish(marker)
 	rospy.loginfo("marker published")
